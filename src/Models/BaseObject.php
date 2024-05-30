@@ -68,7 +68,6 @@ class BaseObject extends DataObject implements PermissionProvider
      * Get a text from the translations system for a given identifier
      *
      * Looks up the string for the extending/current class and recursively uses the parent class strings as a fallback.
-     * Supports sprintf evaluation of extra params to replace in the text.
      *
      * @param string $identifier
      * @return string
@@ -79,11 +78,11 @@ class BaseObject extends DataObject implements PermissionProvider
         $text  = '';
 
         while (!$text && $class !== DataObject::class) {
-            $text  = trim(_t($class . '.' . $identifier));
+            $text  = trim(_t($class . '.' . $identifier, ...$params));
             $class = get_parent_class($class);
         }
 
-        return sprintf($text, ...$params);
+        return $text;
     }
 
 
@@ -93,16 +92,16 @@ class BaseObject extends DataObject implements PermissionProvider
     protected function i18nDisableWarning(): void
     {
         $this->i18nMissingDefaultWarning = i18n::config()->get('missing_default_warning');
-        i18n::config()->update('missing_default_warning', false);
+        i18n::config()->set('missing_default_warning', false);
     }
 
 
     /**
-     * Restore teh config for missing default text warnings
+     * Restore the config for missing default text warnings
      */
     protected function i18nRestoreWarningConfig(): void
     {
-        i18n::config()->update('missing_default_warning', $this->i18nMissingDefaultWarning);
+        i18n::config()->set('missing_default_warning', $this->i18nMissingDefaultWarning);
     }
 
 
